@@ -12,12 +12,12 @@ void CGraphicTextInstance::CheckMultiLine()
 	if (!m_EnterToken)
 		return;
 
+	if (!multi_text.empty())
+		multi_text.clear(); // fix
+	
 	auto MultiVec = SplitMultiLine(m_stText);
 	if (MultiVec.size() < 2)
 		return;
-
-	if (!multi_text.empty())
-		multi_text.clear();
 
 	m_stText.assign(MultiVec.at(0));
 	MultiVec.erase(MultiVec.begin());

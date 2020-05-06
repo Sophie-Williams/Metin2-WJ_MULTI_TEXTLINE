@@ -1,34 +1,35 @@
 ///Add
 #if defined(__ENABLE_MULTITEXTLINE__)
 #include <regex>
+static const TTokenVector SplitMultiLine(const TTokenVector::value_type& m_stText)
+{
+	static const std::regex re(R"(\\n|\n)");
+	const std::sregex_token_iterator first{ m_stText.begin(), m_stText.end(), re, -1 }, last;
+	return { first, last };
+};
 void CGraphicTextInstance::CheckMultiLine()
 {
-	const auto SplitMultiLine = [&]() -> std::vector<decltype(m_stText)>
-	{
-		static const std::regex re(R"(\\n|\n)");
-		const std::sregex_token_iterator first{ m_stText.begin(), m_stText.end(), re, -1 }, last;
-		return { first, last };
-	};
-	if (IsBaseObject) {
-		auto MultiVec = SplitMultiLine();
-		
-		if (MultiVec.size() > 1) {
-			if (!multi_text.empty())
-				multi_text.clear();
-			m_stText.assign(MultiVec.at(0));
-			MultiVec.erase(MultiVec.begin());
-			multi_text.reserve(MultiVec.size());
-			
-			for (const auto& v : MultiVec) {
-				auto pTextInstance = std::make_shared<CGraphicTextInstance>(*this);
-				pTextInstance->multi_text.clear();
-				pTextInstance->IsBaseObject = false;
-				pTextInstance->SetValueString(v);
-				multi_text.emplace_back(pTextInstance);
-			}
+	if (!IsBaseObject)
+		return;
+	auto MultiVec = SplitMultiLine(m_stText);
+	if (MultiVec.size() > 1) {
+		if (!multi_text.empty())
+			multi_text.clear();
 
-			SetPosition(m_v3Position.x, m_v3Position.y, m_v3Position.z);
+		m_stText.assign(MultiVec.at(0));
+		MultiVec.erase(MultiVec.begin());
+		multi_text.reserve(MultiVec.size());
+
+		for (const auto& v : MultiVec) {
+			auto pTextInstance = std::make_shared<CGraphicTextInstance>(*this);
+			if (!pTextInstance->multi_text.empty())
+				pTextInstance->multi_text.clear();
+			pTextInstance->IsBaseObject = false;
+			pTextInstance->SetValueString(v);
+			multi_text.emplace_back(pTextInstance);
 		}
+
+		SetPosition(m_v3Position.x, m_v3Position.y, m_v3Position.z);
 	}
 }
 #endif

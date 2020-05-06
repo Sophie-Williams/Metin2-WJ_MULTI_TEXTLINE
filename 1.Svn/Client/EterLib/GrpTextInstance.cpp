@@ -9,12 +9,12 @@ static const TTokenVector SplitMultiLine(const TTokenVector::value_type& m_stTex
 };
 void CGraphicTextInstance::CheckMultiLine()
 {
+	if (!multi_text.empty())
+		multi_text.clear();
+
 	if (!m_EnterToken)
 		return;
 
-	if (!multi_text.empty())
-		multi_text.clear(); // fix
-	
 	auto MultiVec = SplitMultiLine(m_stText);
 	if (MultiVec.size() < 2)
 		return;
@@ -25,14 +25,11 @@ void CGraphicTextInstance::CheckMultiLine()
 
 	for (const auto& v : MultiVec) {
 		auto pTextInstance = std::make_shared<CGraphicTextInstance>(*this);
-		if (!pTextInstance->multi_text.empty())
-			pTextInstance->multi_text.clear();
 		pTextInstance->SetEnterToken(false);
 		pTextInstance->SetValueString(v);
 		multi_text.emplace_back(pTextInstance);
-
-		SetPosition(m_v3Position.x, m_v3Position.y, m_v3Position.z);
 	}
+	SetPosition(m_v3Position.x, m_v3Position.y, m_v3Position.z);
 }
 #endif
 

@@ -1,5 +1,5 @@
 ///Add
-#if defined(__ENABLE_MULTITEXTLINE__)
+#if defined(WJ_MULTI_TEXTLINE)
 #include <regex>
 static const TTokenVector SplitMultiLine(const TTokenVector::value_type& m_stText)
 {
@@ -9,25 +9,27 @@ static const TTokenVector SplitMultiLine(const TTokenVector::value_type& m_stTex
 };
 void CGraphicTextInstance::CheckMultiLine()
 {
-	if (!IsBaseObject)
+	if (!m_EnterToken)
 		return;
+
 	auto MultiVec = SplitMultiLine(m_stText);
-	if (MultiVec.size() > 1) {
-		if (!multi_text.empty())
-			multi_text.clear();
+	if (MultiVec.size() < 2)
+		return;
 
-		m_stText.assign(MultiVec.at(0));
-		MultiVec.erase(MultiVec.begin());
-		multi_text.reserve(MultiVec.size());
+	if (!multi_text.empty())
+		multi_text.clear();
 
-		for (const auto& v : MultiVec) {
-			auto pTextInstance = std::make_shared<CGraphicTextInstance>(*this);
-			if (!pTextInstance->multi_text.empty())
-				pTextInstance->multi_text.clear();
-			pTextInstance->IsBaseObject = false;
-			pTextInstance->SetValueString(v);
-			multi_text.emplace_back(pTextInstance);
-		}
+	m_stText.assign(MultiVec.at(0));
+	MultiVec.erase(MultiVec.begin());
+	multi_text.reserve(MultiVec.size());
+
+	for (const auto& v : MultiVec) {
+		auto pTextInstance = std::make_shared<CGraphicTextInstance>(*this);
+		if (!pTextInstance->multi_text.empty())
+			pTextInstance->multi_text.clear();
+		pTextInstance->SetEnterToken(false);
+		pTextInstance->SetValueString(v);
+		multi_text.emplace_back(pTextInstance);
 
 		SetPosition(m_v3Position.x, m_v3Position.y, m_v3Position.z);
 	}
@@ -39,7 +41,7 @@ void CGraphicTextInstance::CheckMultiLine()
 		return;
 	
 ///Add
-#if defined(__ENABLE_MULTITEXTLINE__)
+#if defined(WJ_MULTI_TEXTLINE)
 	for (const auto& v : multi_text)
 		v->Update();
 #endif
@@ -49,7 +51,7 @@ void CGraphicTextInstance::CheckMultiLine()
 		return;
 	
 ///Add
-#if defined(__ENABLE_MULTITEXTLINE__)
+#if defined(WJ_MULTI_TEXTLINE)
 	for (const auto& v : multi_text)
 		v->Render();
 #endif
@@ -58,7 +60,7 @@ void CGraphicTextInstance::CheckMultiLine()
 	m_stText = c_stValue;
 	
 ///Add
-#if defined(__ENABLE_MULTITEXTLINE__)
+#if defined(WJ_MULTI_TEXTLINE)
 	CheckMultiLine();
 #endif
 
@@ -66,7 +68,7 @@ void CGraphicTextInstance::CheckMultiLine()
 	m_stText = c_szText;
 	
 ///Add
-#if defined(__ENABLE_MULTITEXTLINE__)
+#if defined(WJ_MULTI_TEXTLINE)
 	CheckMultiLine();
 #endif
 
@@ -74,7 +76,7 @@ void CGraphicTextInstance::CheckMultiLine()
 	m_v3Position.z = fz;
 
 ///Add
-#if defined(__ENABLE_MULTITEXTLINE__)
+#if defined(WJ_MULTI_TEXTLINE)
 	for (size_t i = 0; i < multi_text.size(); i++)
 		multi_text.at(i)->SetPosition(fx, fy + (i+1) * 10.0f, fz);
 #endif
@@ -83,14 +85,14 @@ void CGraphicTextInstance::CheckMultiLine()
 	m_isUpdate = false;
 	
 ///Add
-#if defined(__ENABLE_MULTITEXTLINE__)
-	IsBaseObject = true;
+#if defined(WJ_MULTI_TEXTLINE)
+	m_EnterToken = false; // default, you can change
 #endif
 
 //Find in void CGraphicTextInstance::Destroy()
 	m_hyperlinkVector.clear();
 	
 ///Add
-#if defined(__ENABLE_MULTITEXTLINE__)
+#if defined(WJ_MULTI_TEXTLINE)
 	multi_text.clear();
 #endif
